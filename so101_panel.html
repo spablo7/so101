@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel del brazo SO-101</title>
+<style>
+:root{
+  --fondo:#f2f1ec; --papel:#fbfaf7; --tinta:#16181d; --tenue:#5b6068; --linea:#cfcdc4;
+  --acento:#1f4e79; --acento-tinta:#ffffff; --alerta:#8a3b1e; --alerta-fondo:#f4e3da; --bien:#2f6046;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --fondo:#14161a; --papel:#1b1e23; --tinta:#e9e7e1; --tenue:#a0a5ad; --linea:#3a3e46;
+    --acento:#8fb8de; --acento-tinta:#10151b; --alerta:#e7a487; --alerta-fondo:#3a2219; --bien:#8fc9a8; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--tinta);font-family:var(--serif);font-size:17px;line-height:1.45}
+main{max-width:1020px;margin:0 auto;padding:28px 16px 60px}
+h1{font-size:1.7rem;margin:0 0 4px;font-weight:600}
+h2{font-size:1.15rem;margin:0 0 4px;font-weight:600}
+p{margin:0 0 10px} .tenue{color:var(--tenue)} .chico{font-size:.88rem}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.86rem}
+section{border-top:1px solid var(--linea);padding:20px 0 6px;margin-top:18px}
+button{font:inherit;font-size:.95rem;padding:7px 14px;border:1px solid var(--tinta);background:transparent;color:var(--tinta);cursor:pointer;border-radius:3px}
+button.principal{background:var(--acento);border-color:var(--acento);color:var(--acento-tinta)}
+button.peligro{border-color:var(--alerta);color:var(--alerta)}
+button.mini{padding:3px 9px;font-size:.85rem}
+button:disabled{opacity:.38;cursor:not-allowed}
+input[type=text],input[type=number],select{font:inherit;font-size:.95rem;padding:6px 8px;border:1px solid var(--linea);background:var(--papel);color:var(--tinta);border-radius:3px}
+input[type=number]{width:5.2em;font-family:var(--mono);font-size:.86rem}
+input[type=range]{width:100%;accent-color:var(--acento);margin:0}
+.fila{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:10px 0}
+#aviso{display:none;background:var(--alerta-fondo);color:var(--alerta);border-left:3px solid var(--alerta);padding:10px 12px;margin:14px 0}
+#estado{font-family:var(--mono);font-size:.86rem}
+.punto{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--tenue);margin-right:.4em}
+.punto.si{background:var(--bien)} .punto.fuerza{background:var(--acento)}
+.art{display:grid;grid-template-columns:9.5em 1fr 5.4em 9em 3.4em;gap:4px 12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--linea)}
+.art:last-child{border-bottom:0}
+.art .nombre{font-weight:600}
+.pista{position:relative;height:9px;margin-top:2px}
+.pista i{position:absolute;top:0;width:2px;height:9px;background:var(--tinta);transform:translateX(-1px)}
+.pista b{position:absolute;top:4px;left:0;right:0;height:1px;background:var(--linea)}
+.extremos{display:flex;justify-content:space-between;color:var(--tenue)}
+table{width:100%;border-collapse:collapse;margin:8px 0}
+th,td{text-align:left;padding:6px 8px 6px 0;border-bottom:1px solid var(--linea);vertical-align:middle}
+th{font-weight:600;font-size:.88rem;color:var(--tenue)}
+td.acciones{white-space:nowrap;text-align:right;padding-right:0}
+td.acciones button{margin-left:4px}
+tr.activo td{background:var(--papel)}
+tr.activo td:first-child{box-shadow:inset 3px 0 0 var(--acento);padding-left:10px}
+.vacio{color:var(--tenue);font-style:italic;padding:8px 0}
+ul.notas{margin:6px 0 0;padding-left:1.1em} ul.notas li{margin-bottom:5px}
+@media (max-width:720px){
+  .art{grid-template-columns:1fr 5.4em;}
+  .art .nombre{grid-column:1/2} .art .tmp{grid-column:2/3;text-align:right}
+  .art .desliza{grid-column:1/3;grid-row:2} .art .meta{grid-column:1/2;grid-row:3} .art .real{grid-column:2/3;grid-row:3;text-align:right}
+  table,thead,tbody,tr,td{display:block} thead{display:none} td{border:0;padding:2px 0} tr{border-bottom:1px solid var(--linea);padding:8px 0}
+  td[data-e]{display:inline-block;margin-right:14px} td[data-e]::before{content:attr(data-e) " ";color:var(--tenue);font-family:var(--serif);font-size:.82rem}
+  tr.activo td:first-child{box-shadow:none;padding-left:0} tr.activo{box-shadow:inset 3px 0 0 var(--acento);padding-left:10px;background:var(--papel)}
+  td.acciones{text-align:left} td.acciones button{margin:4px 6px 0 0}
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Panel del brazo SO-101</h1>
+<p class="tenue">Mueve cada articulación del brazo, guarda posturas y arma una secuencia que pasa de una postura guardada a otra. La página habla directo con el brazo por el puerto USB; funciona en Google Chrome, abierta como archivo en este computador.</p>
+
+<div class="fila">
+  <button id="bConectar" class="principal">Conectar el brazo</button>
+  <button id="bDesconectar" disabled>Desconectar</button>
+  <span id="estado"><span class="punto"></span>Sin conexión</span>
+</div>
+<div id="aviso" role="status" aria-live="polite"></div>
+
+<section>
+  <h2>Fuerza de los motores</h2>
+  <p class="tenue chico">Con el torque activado, cada motor sostiene su posición y obedece a los controles. Con el torque suelto, el brazo se mueve con la mano y los controles solo muestran dónde está. La postura en que está el brazo la primera vez que se activa el torque queda como «Reposo».</p>
+  <div class="fila">
+    <button id="bTorque" class="principal" disabled>Activar torque</button>
+    <button id="bGuardarSoltar" disabled>Volver a Reposo y soltar</button>
+    <button id="bSoltar" class="peligro" disabled>Soltar ahora</button>
+    <button id="bReposo" class="mini" disabled>Fijar Reposo aquí</button>
+  </div>
+  <p class="tenue chico">«Soltar ahora» corta la fuerza de inmediato: si el brazo está en alto, cae. «Volver a Reposo y soltar» lo pliega primero.</p>
+</section>
+
+<section>
+  <h2>Articulaciones</h2>
+  <p class="tenue chico">Las posiciones van en pasos, la escala de cada motor: 4096 pasos son una vuelta. Cada control llega solo hasta los límites grabados en su motor. La marca bajo cada control es la posición real. Los grados se cuentan desde el centro de la escala, el paso 2048.</p>
+  <div class="fila">
+    <label for="velocidad">Velocidad de los controles</label>
+    <select id="velocidad">
+      <option value="300">Lenta (26° por segundo)</option>
+      <option value="800" selected>Media (70° por segundo)</option>
+      <option value="1600">Rápida (140° por segundo)</option>
+    </select>
+  </div>
+  <div id="arts"></div>
+</section>
+
+<section>
+  <h2>Posturas guardadas</h2>
+  <p class="tenue chico">Una postura es la posición de las seis articulaciones en un momento. Se guarda la posición real del brazo, tenga o no el torque activado.</p>
+  <div class="fila">
+    <input type="text" id="nombrePostura" placeholder="Nombre de la postura" maxlength="40" aria-label="Nombre de la postura">
+    <button id="bGuardarPostura" disabled>Guardar la postura actual</button>
+    <label for="tiempoIr">Tiempo para ir a una postura</label>
+    <input type="number" id="tiempoIr" value="2" min="0.3" max="20" step="0.1"> <span class="tenue chico">segundos</span>
+  </div>
+  <div id="posturas"></div>
+</section>
+
+<section>
+  <h2>Secuencia</h2>
+  <p class="tenue chico">Una lista de pasos. En cada paso el brazo va a una postura guardada en el tiempo indicado, con las seis articulaciones llegando juntas, y después espera la pausa.</p>
+  <div class="fila">
+    <select id="posturaPaso" aria-label="Postura del paso"></select>
+    <label for="durPaso">Tiempo</label><input type="number" id="durPaso" value="2" min="0.3" max="20" step="0.1">
+    <label for="pausaPaso">Pausa</label><input type="number" id="pausaPaso" value="0.5" min="0" max="20" step="0.1">
+    <button id="bAgregarPaso" disabled>Agregar paso</button>
+  </div>
+  <div id="pasos"></div>
+  <div class="fila">
+    <button id="bReproducir" class="principal" disabled>Reproducir</button>
+    <button id="bDetener" disabled>Detener</button>
+    <label><input type="checkbox" id="repetir"> Repetir hasta detener</label>
+    <span id="avance" class="mono tenue"></span>
+  </div>
+</section>
+
+<section>
+  <h2>Archivo</h2>
+  <p class="tenue chico">Las posturas y la secuencia se guardan solas en este navegador. El archivo sirve para respaldarlas o llevarlas a otro computador.</p>
+  <div class="fila">
+    <button id="bExportar">Exportar posturas y secuencia</button>
+    <button id="bImportar">Importar</button>
+    <input type="file" id="archivo" accept="application/json,.json" hidden>
+  </div>
+</section>
+
+<section>
+  <h2>Antes de usar</h2>
+  <ul class="notas chico">
+    <li>La base del brazo va fija a la mesa y el espacio alrededor, despejado.</li>
+    <li>Solo un programa puede usar el puerto a la vez: mientras esta página esté conectada, no corras los programas de Python del brazo.</li>
+    <li>Cerrar la página no suelta el torque: el brazo queda sosteniendo su postura hasta que se suelte desde aquí o se apague la fuente.</li>
+    <li>El giro de muñeca no se mueve con la mano más de media vuelta: el motor pierde la cuenta de vueltas y deja de obedecer.</li>
+  </ul>
+</section>
+</main>
+
+<script>
+"use strict";
+// ---------- El brazo ----------
+const ARTS = [
+  {id:1, nombre:"Base"}, {id:2, nombre:"Hombro"}, {id:3, nombre:"Codo"},
+  {id:4, nombre:"Muñeca, flexión"}, {id:5, nombre:"Muñeca, giro"}, {id:6, nombre:"Pinza"},
+];
+const IDS = ARTS.map(a => a.id);
+const TORQUE = {1:600, 2:850, 3:850, 4:600, 5:500, 6:400};   // tope de fuerza, escala 0 a 1000
+const ACEL   = {1:20, 2:8, 3:10, 4:60, 5:30, 6:50};          // x100 pasos/s²
+const TEMP_MAX = 55;
+// Direcciones de memoria del motor Feetech STS3215
+const D = {LIM_MIN:9, LIM_MAX:11, MODO:33, TORQUE_ON:40, ACEL:41, LIM_TORQUE:48, POS:56, VOLT:62, TEMP:63, ESTADO:65};
+
+// ---------- Protocolo Feetech sobre Web Serial ----------
+function paquete(id, instr, params = []) {
+  const c = [id, params.length + 2, instr, ...params];
+  return new Uint8Array([0xFF, 0xFF, ...c, (~c.reduce((s, x) => s + x, 0)) & 0xFF]);
+}
+function respuesta(rx, id, n) {            // busca FF FF id largo error datos... suma
+  for (let i = 0; i + 6 + n <= rx.length; i++) {
+    if (rx[i] === 0xFF && rx[i+1] === 0xFF && rx[i+2] === id && rx[i+3] === n + 2) {
+      let s = 0; for (let j = i + 2; j < i + 5 + n; j++) s += rx[j];
+      if (((~s) & 0xFF) === rx[i + 5 + n]) return rx.slice(i + 5, i + 5 + n);
+    }
+  }
+  return null;
+}
+class Bus {
+  constructor() { this.rx = []; this.cola = Promise.resolve(); this.abierto = false; }
+  async abrir() {
+    this.puerto = await navigator.serial.requestPort();
+    await this.puerto.open({baudRate: 1000000, bufferSize: 4096});
+    this.escritor = this.puerto.writable.getWriter();
+    this.lector = this.puerto.readable.getReader();
+    this.abierto = true;
+    (async () => {
+      try { for (;;) { const {value, done} = await this.lector.read(); if (done) break; this.rx.push(...value); if (this.despierta) this.despierta(); } }
+      catch (e) { /* el puerto se cerró o se desenchufó */ }
+      this.abierto = false;
+    })();
+  }
+  async cerrar() {
+    this.abierto = false;
+    try { await this.lector.cancel(); } catch (e) {}
+    try { this.escritor.releaseLock(); } catch (e) {}
+    try { await this.puerto.close(); } catch (e) {}
+  }
+  tx(id, instr, params, n) {               // una transacción a la vez: el bus es de un solo hilo
+    const r = this.cola.then(() => this._tx(id, instr, params, n));
+    this.cola = r.catch(() => {});
+    return r;
+  }
+  async _tx(id, instr, params, n) {
+    if (!this.abierto) throw new Error("el puerto está cerrado");
+    const p = paquete(id, instr, params);
+    for (let intento = 0; intento < 3; intento++) {
+      this.rx = [];
+      await this.escritor.write(p);
+      const fin = performance.now() + 70;
+      while (performance.now() < fin) {
+        if (this.rx.length >= p.length && p.every((b, i) => this.rx[i] === b)) this.rx.splice(0, p.length);  // eco, si la placa lo devuelve
+        const r = respuesta(this.rx, id, n);
+        if (r) return r;
+        await new Promise(res => { this.despierta = res; setTimeout(res, 6); });
+      }
+    }
+    throw new Error("el motor " + id + " no responde");
+  }
+  async leer(id, dir, n) { const r = await this.tx(id, 0x02, [dir, n], n); return r.reduce((v, b, i) => v + (b << (8 * i)), 0); }
+  escribir(id, dir, bytes) { return this.tx(id, 0x03, [dir, ...bytes], 0); }
+}
+const b2 = v => [v & 0xFF, (v >> 8) & 0xFF];
+
+// ---------- Estado ----------
+const bus = new Bus();
+const st = {conectado:false, torque:false, ocupado:false, parar:false, lim:{}, pos:{}, meta:{}, temp:{}, volt:{},
+            caliente:{}, previo:{}, reposo:null, pasoActivo:-1};
+let datos = {posturas:[], secuencia:[], repetir:false};
+const CLAVE = "so101-panel-v1";
+try { const g = JSON.parse(localStorage.getItem(CLAVE)); if (g && Array.isArray(g.posturas)) datos = Object.assign(datos, g); } catch (e) {}
+function persistir() { try { localStorage.setItem(CLAVE, JSON.stringify(datos)); } catch (e) {} }
+
+const $ = id => document.getElementById(id);
+const espera = ms => new Promise(r => setTimeout(r, ms));
+const recorta = (id, v) => Math.max(st.lim[id][0], Math.min(st.lim[id][1], Math.round(v)));
+const grados = v => { const g = Math.round((v - 2048) * 360 / 4096); return (g > 0 ? "+" : g < 0 ? "−" : "") + Math.abs(g) + "°"; };
+function avisar(texto) { const a = $("aviso"); a.textContent = texto || ""; a.style.display = texto ? "block" : "none"; }
+
+// ---------- Órdenes al brazo ----------
+async function mandar(id, meta, velocidad) {          // aceleración, meta, tiempo (0) y velocidad en un solo mensaje
+  meta = recorta(id, meta); st.meta[id] = meta;
+  await bus.escribir(id, D.ACEL, [ACEL[id], ...b2(meta), 0, 0, ...b2(Math.max(60, Math.min(3000, Math.round(velocidad))))]);
+}
+async function irA(pos, segundos, solo) {             // todas llegan juntas: cada una a la velocidad que le toca
+  for (const id of IDS) {
+    if (solo && !solo.includes(id)) continue;
+    if (pos[id] == null) continue;
+    const dist = Math.abs(recorta(id, pos[id]) - st.pos[id]);
+    await mandar(id, pos[id], dist / segundos * 1.25);
+  }
+  pintarMetas();
+}
+async function activarTorque() {
+  for (const id of IDS) {
+    st.previo[id] = await bus.leer(id, D.LIM_TORQUE, 2);
+    await bus.escribir(id, D.LIM_TORQUE, b2(TORQUE[id]));
+    await mandar(id, st.pos[id], 200);                // la meta es donde ya está: no salta al activar
+    await bus.escribir(id, D.TORQUE_ON, [1]);
+  }
+  if (!st.reposo) st.reposo = Object.assign({}, st.pos);
+  st.torque = true; pintarTodo();
+}
+async function soltar() {
+  st.parar = true; st.torque = false;                 // desde ya: la vigilancia no debe leerlo como una falla
+  for (const id of IDS) {
+    try { await bus.escribir(id, D.TORQUE_ON, [0]); if (st.previo[id] != null) await bus.escribir(id, D.LIM_TORQUE, b2(st.previo[id])); } catch (e) {}
+  }
+  st.ocupado = false; pintarTodo();
+}
+async function esperaAtenta(ms) { const fin = performance.now() + ms; while (performance.now() < fin && !st.parar) await espera(40); }
+async function volverYSoltar() {                      // primero lo liviano, después baja el hombro, al final pliega el codo
+  if (!st.reposo) return;
+  st.ocupado = true; st.parar = false; pintarTodo();
+  try {
+    await irA(st.reposo, 1.2, [1, 4, 5, 6]); await esperaAtenta(1500);
+    if (!st.parar) { await irA(st.reposo, 2.4, [2]); await esperaAtenta(2800); }
+    if (!st.parar) { await irA(st.reposo, 2.4, [3]); await esperaAtenta(2900); }
+  } catch (e) { avisar("No se pudo volver a Reposo: " + e.message); }
+  const interrumpido = st.parar;
+  st.ocupado = false;
+  if (!interrumpido) await soltar(); else pintarTodo();
+}
+async function quedarseAqui() { for (const id of IDS) { try { await mandar(id, st.pos[id], 600); } catch (e) {} } pintarMetas(); }
+async function reproducir() {
+  if (!st.torque || st.ocupado || !datos.secuencia.length) return;
+  st.ocupado = true; st.parar = false; pintarTodo();
+  let vuelta = 0;
+  try {
+    do {
+      vuelta++;
+      for (let i = 0; i < datos.secuencia.length && !st.parar; i++) {
+        const paso = datos.secuencia[i], postura = datos.posturas.find(p => p.id === paso.postura);
+        if (!postura) continue;
+        st.pasoActivo = i; pintarPasos();
+        $("avance").textContent = "Paso " + (i + 1) + " de " + datos.secuencia.length + (datos.repetir ? " · vuelta " + vuelta : "");
+        await irA(postura.pos, paso.dur);
+        await esperaAtenta(paso.dur * 1000 + 120);
+        await esperaAtenta(paso.pausa * 1000);
+      }
+    } while (datos.repetir && !st.parar);
+  } catch (e) { avisar("La secuencia se detuvo: " + e.message); }
+  if (st.parar && st.torque) await quedarseAqui();
+  st.ocupado = false; st.pasoActivo = -1; $("avance").textContent = ""; pintarTodo();
+}
+
+// ---------- Lectura continua ----------
+async function vigilar() {
+  let vuelta = 0;
+  while (st.conectado) {
+    try {
+      for (const id of IDS) st.pos[id] = await bus.leer(id, D.POS, 2);
+      if (vuelta % 10 === 0) {
+        for (const id of IDS) {
+          st.volt[id] = (await bus.leer(id, D.VOLT, 1)) / 10;
+          const t = await bus.leer(id, D.TEMP, 1); st.temp[id] = t;
+          st.caliente[id] = t > TEMP_MAX ? (st.caliente[id] || 0) + 1 : 0;   // una lectura suelta puede ser falsa
+          if (st.caliente[id] >= 3) { st.parar = true; avisar(nombre(id) + " está a " + t + " °C. La secuencia se detuvo; vuelve a Reposo y suelta para que enfríe."); }
+          if (st.torque && (await bus.leer(id, D.TORQUE_ON, 1)) !== 1 && st.torque) avisar(nombre(id) + " perdió el torque: el motor se reinició. Revisa la fuente y los cables.");
+          const falla = await bus.leer(id, D.ESTADO, 1);
+          if (falla) avisar(nombre(id) + " informa una falla (registro " + falla + ").");
+        }
+      }
+      pintarLectura();
+    } catch (e) {
+      if (!bus.abierto) { desconectado("Se perdió la conexión con la placa."); return; }
+      avisar("Lectura fallida: " + e.message + ". ¿La fuente del brazo está encendida?");
+      await espera(400);
+    }
+    vuelta++;
+    await espera(70);
+  }
+}
+const nombre = id => ARTS.find(a => a.id === id).nombre;
+
+// ---------- Conexión ----------
+async function conectar() {
+  avisar("");
+  try { await bus.abrir(); }
+  catch (e) { if (e.name !== "NotFoundError") avisar("No se pudo abrir el puerto: " + e.message + ". Si un programa de Python lo está usando, ciérralo."); return; }
+  try {
+    for (const id of IDS) {
+      await bus.tx(id, 0x01, [], 0);
+      st.lim[id] = [await bus.leer(id, D.LIM_MIN, 2), await bus.leer(id, D.LIM_MAX, 2)];
+      if (st.lim[id][0] >= st.lim[id][1]) st.lim[id] = [0, 4095];
+      st.pos[id] = await bus.leer(id, D.POS, 2); st.meta[id] = st.pos[id];
+      if ((await bus.leer(id, D.MODO, 1)) !== 0) throw new Error(nombre(id) + " no está en modo posición");
+    }
+    st.torque = false;
+    for (const id of IDS) if ((await bus.leer(id, D.TORQUE_ON, 1)) === 1) st.torque = true;   // la página se recargó con el torque activado
+  } catch (e) {
+    await bus.cerrar();
+    avisar("La placa abrió, pero el brazo no contesta: " + e.message + ". Revisa que la fuente esté encendida y el cable del brazo puesto.");
+    return;
+  }
+  st.conectado = true; armarArticulaciones(); pintarTodo(); vigilar();
+}
+function desconectado(texto) { st.conectado = false; st.torque = false; st.ocupado = false; st.parar = true; pintarTodo(); if (texto) avisar(texto); }
+async function desconectar() {
+  const conFuerza = st.torque;
+  st.conectado = false; await espera(150); await bus.cerrar();
+  desconectado(conFuerza ? "Desconectado con el torque activado: el brazo sigue sosteniendo su postura. Para soltarlo, conecta de nuevo o apaga la fuente." : "");
+}
+
+// ---------- Pantalla ----------
+function armarArticulaciones() {
+  const caja = $("arts"); caja.textContent = "";
+  for (const a of ARTS) {
+    const [mn, mx] = st.lim[a.id];
+    const f = document.createElement("div"); f.className = "art";
+    f.innerHTML =
+      '<div class="nombre"></div>' +
+      '<div class="desliza"><input type="range" aria-label="' + a.nombre + '" min="' + mn + '" max="' + mx + '" step="1" id="r' + a.id + '">' +
+      '<div class="pista"><b></b><i id="m' + a.id + '"></i></div><div class="extremos mono"><span>' + mn + '</span><span>' + mx + '</span></div></div>' +
+      '<div class="meta"><input type="number" aria-label="Meta de ' + a.nombre + '" min="' + mn + '" max="' + mx + '" step="1" id="n' + a.id + '"></div>' +
+      '<div class="real mono" id="p' + a.id + '"></div><div class="tmp mono tenue" id="t' + a.id + '"></div>';
+    f.querySelector(".nombre").textContent = a.nombre;
+    caja.appendChild(f);
+    const alMover = e => { if (!st.torque || st.ocupado) return; const v = recorta(a.id, +e.target.value || 0); st.meta[a.id] = v; pendientes.add(a.id); pintarMetas(e.target); };
+    $("r" + a.id).addEventListener("input", alMover);
+    $("n" + a.id).addEventListener("change", alMover);
+  }
+}
+const pendientes = new Set();
+setInterval(async () => {                              // los controles se envían cada 60 ms como máximo
+  if (!st.conectado || !st.torque || st.ocupado || !pendientes.size) return;
+  const ids = [...pendientes]; pendientes.clear();
+  for (const id of ids) { try { await mandar(id, st.meta[id], +$("velocidad").value); } catch (e) { avisar(e.message); } }
+}, 60);
+function pintarMetas(origen) {
+  for (const id of IDS) {
+    const r = $("r" + id), n = $("n" + id); if (!r) return;
+    if (origen !== r) r.value = st.meta[id];
+    if (origen !== n && document.activeElement !== n) n.value = st.meta[id];
+  }
+}
+function pintarLectura() {
+  for (const id of IDS) {
+    const [mn, mx] = st.lim[id], p = st.pos[id];
+    $("m" + id).style.left = Math.max(0, Math.min(100, (p - mn) / (mx - mn) * 100)) + "%";
+    $("p" + id).textContent = p + " · " + grados(p);
+    $("t" + id).textContent = st.temp[id] != null ? st.temp[id] + " °C" : "";
+    if (!st.torque) st.meta[id] = recorta(id, p);
+  }
+  if (!st.torque) pintarMetas();
+  const v = IDS.map(id => st.volt[id]).filter(x => x != null);
+  $("estado").innerHTML = '<span class="punto ' + (st.torque ? "fuerza" : "si") + '"></span>' +
+    "Conectado · 6 motores · " + (v.length ? Math.min(...v).toFixed(1) + " V · " : "") + (st.torque ? "torque activado" : "torque suelto");
+}
+function pintarPosturas() {
+  const caja = $("posturas"), sel = $("posturaPaso"); sel.textContent = "";
+  for (const p of datos.posturas) { const o = document.createElement("option"); o.value = p.id; o.textContent = p.nombre; sel.appendChild(o); }
+  if (!datos.posturas.length) { caja.innerHTML = '<div class="vacio">Todavía no hay posturas guardadas.</div>'; return; }
+  const puedeIr = st.conectado && st.torque && !st.ocupado;
+  const t = document.createElement("table");
+  t.innerHTML = "<thead><tr><th>Postura</th>" + ARTS.map(a => "<th>" + a.nombre.replace("Muñeca, ", "M. ") + "</th>").join("") + "<th></th></tr></thead>";
+  const tb = document.createElement("tbody");
+  for (const p of datos.posturas) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td"); td.textContent = p.nombre; tr.appendChild(td);
+    for (const a of ARTS) { const c = document.createElement("td"); c.className = "mono"; c.dataset.e = a.nombre.replace("Muñeca, ", "M. "); c.textContent = p.pos[a.id]; tr.appendChild(c); }
+    const ac = document.createElement("td"); ac.className = "acciones";
+    ac.appendChild(boton("Ir", "mini principal", puedeIr, async () => { avisar(""); try { await irA(p.pos, +$("tiempoIr").value || 2); } catch (e) { avisar(e.message); } }));
+    ac.appendChild(boton("Reemplazar", "mini", st.conectado, () => { p.pos = Object.assign({}, st.pos); persistir(); pintarPosturas(); }));
+    ac.appendChild(boton("Borrar", "mini", !st.ocupado, () => {
+      datos.posturas = datos.posturas.filter(x => x !== p); datos.secuencia = datos.secuencia.filter(s => s.postura !== p.id);
+      persistir(); pintarPosturas(); pintarPasos(); }));
+    tr.appendChild(ac); tb.appendChild(tr);
+  }
+  t.appendChild(tb); caja.textContent = ""; caja.appendChild(t);
+}
+function pintarPasos() {
+  const caja = $("pasos");
+  if (!datos.secuencia.length) { caja.innerHTML = '<div class="vacio">La secuencia está vacía. Guarda posturas y agrégalas como pasos.</div>'; return; }
+  const t = document.createElement("table");
+  t.innerHTML = "<thead><tr><th>Paso</th><th>Postura</th><th>Tiempo (s)</th><th>Pausa (s)</th><th></th></tr></thead>";
+  const tb = document.createElement("tbody");
+  datos.secuencia.forEach((s, i) => {
+    const p = datos.posturas.find(x => x.id === s.postura), tr = document.createElement("tr");
+    if (i === st.pasoActivo) tr.className = "activo";
+    const c1 = document.createElement("td"); c1.className = "mono"; c1.dataset.e = "Paso"; c1.textContent = i + 1; tr.appendChild(c1);
+    const c2 = document.createElement("td"); c2.textContent = p ? p.nombre : "(postura borrada)"; tr.appendChild(c2);
+    for (const campo of ["dur", "pausa"]) {
+      const c = document.createElement("td"), e = document.createElement("input");
+      c.dataset.e = campo === "dur" ? "Tiempo" : "Pausa";
+      e.type = "number"; e.step = "0.1"; e.min = campo === "dur" ? "0.3" : "0"; e.max = "20"; e.value = s[campo]; e.disabled = st.ocupado;
+      e.setAttribute("aria-label", (campo === "dur" ? "Tiempo" : "Pausa") + " del paso " + (i + 1));
+      e.addEventListener("change", () => { s[campo] = Math.max(+e.min, Math.min(20, +e.value || 0)); e.value = s[campo]; persistir(); });
+      c.appendChild(e); tr.appendChild(c);
+    }
+    const ac = document.createElement("td"); ac.className = "acciones";
+    ac.appendChild(boton("Subir", "mini", !st.ocupado && i > 0, () => mover(i, -1)));
+    ac.appendChild(boton("Bajar", "mini", !st.ocupado && i < datos.secuencia.length - 1, () => mover(i, 1)));
+    ac.appendChild(boton("Quitar", "mini", !st.ocupado, () => { datos.secuencia.splice(i, 1); persistir(); pintarPasos(); pintarBotones(); }));
+    tr.appendChild(ac); tb.appendChild(tr);
+  });
+  t.appendChild(tb); caja.textContent = ""; caja.appendChild(t);
+}
+function mover(i, d) { const s = datos.secuencia; [s[i], s[i + d]] = [s[i + d], s[i]]; persistir(); pintarPasos(); }
+function boton(texto, clase, activo, accion) { const b = document.createElement("button"); b.textContent = texto; b.className = clase; b.disabled = !activo; b.addEventListener("click", accion); return b; }
+function pintarBotones() {
+  const c = st.conectado, t = st.torque, o = st.ocupado;
+  $("bConectar").disabled = c; $("bDesconectar").disabled = !c;
+  $("bTorque").disabled = !c || t; $("bSoltar").disabled = !c || !t;
+  $("bGuardarSoltar").disabled = !c || !t || o || !st.reposo; $("bReposo").disabled = !c || t;
+  $("bGuardarPostura").disabled = !c; $("bAgregarPaso").disabled = !datos.posturas.length || o;
+  $("bReproducir").disabled = !c || !t || o || !datos.secuencia.length; $("bDetener").disabled = !o;
+  for (const id of IDS) { const r = $("r" + id), n = $("n" + id); if (r) { r.disabled = !c || !t || o; n.disabled = !c || !t || o; } }
+  if (!c) $("estado").innerHTML = '<span class="punto"></span>Sin conexión';
+  $("repetir").checked = !!datos.repetir;
+}
+function pintarTodo() { pintarBotones(); pintarPosturas(); pintarPasos(); if (st.conectado) { pintarMetas(); } }
+
+// ---------- Botones ----------
+$("bConectar").addEventListener("click", conectar);
+$("bDesconectar").addEventListener("click", desconectar);
+$("bTorque").addEventListener("click", async () => { avisar(""); try { await activarTorque(); } catch (e) { avisar("No se pudo activar el torque: " + e.message); } });
+$("bSoltar").addEventListener("click", soltar);
+$("bGuardarSoltar").addEventListener("click", volverYSoltar);
+$("bReposo").addEventListener("click", () => { st.reposo = Object.assign({}, st.pos); avisar("Reposo quedó fijado en la postura actual."); pintarBotones(); });
+$("bGuardarPostura").addEventListener("click", () => {
+  const campo = $("nombrePostura"), nom = campo.value.trim() || "Postura " + (datos.posturas.length + 1);
+  datos.posturas.push({id: "p" + Date.now().toString(36) + Math.floor(Math.random() * 1e4), nombre: nom, pos: Object.assign({}, st.pos)});
+  campo.value = ""; persistir(); pintarPosturas(); pintarBotones();
+});
+$("bAgregarPaso").addEventListener("click", () => {
+  const postura = $("posturaPaso").value; if (!postura) return;
+  datos.secuencia.push({postura, dur: Math.max(0.3, +$("durPaso").value || 2), pausa: Math.max(0, +$("pausaPaso").value || 0)});
+  persistir(); pintarPasos(); pintarBotones();
+});
+$("bReproducir").addEventListener("click", () => { avisar(""); reproducir(); });
+$("bDetener").addEventListener("click", () => { st.parar = true; });
+$("repetir").addEventListener("change", e => { datos.repetir = e.target.checked; persistir(); });
+$("bExportar").addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(datos, null, 2)], {type: "application/json"}));
+  a.download = "so101-posturas.json"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+$("bImportar").addEventListener("click", () => $("archivo").click());
+$("archivo").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const g = JSON.parse(await f.text());
+    if (!Array.isArray(g.posturas) || !g.posturas.every(p => p.id && p.nombre && p.pos)) throw new Error("no tiene posturas válidas");
+    datos = {posturas: g.posturas, secuencia: Array.isArray(g.secuencia) ? g.secuencia : [], repetir: !!g.repetir};
+    persistir(); pintarTodo(); avisar("Se importaron " + datos.posturas.length + " posturas y " + datos.secuencia.length + " pasos.");
+  } catch (err) { avisar("El archivo no se pudo importar: " + err.message); }
+  e.target.value = "";
+});
+if (!("serial" in navigator)) {
+  $("bConectar").disabled = true;
+  avisar("Este navegador no puede usar el puerto USB desde una página. Abre este archivo en Google Chrome.");
+} else {
+  navigator.serial.addEventListener("disconnect", () => { if (st.conectado) desconectado("La placa se desenchufó."); });
+  pintarTodo();
+}
+if (!("serial" in navigator)) { pintarPosturas(); pintarPasos(); }
+window.addEventListener("beforeunload", e => { if (st.ocupado) e.preventDefault(); });
+</script>
+</body>
+</html>
